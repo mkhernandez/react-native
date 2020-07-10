@@ -8,6 +8,15 @@ import { View, Platform, StyleSheet, Text, ScrollView, Image } from 'react-nativ
 import { createStackNavigator, createDrawerNavigator, DrawerItems } from 'react-navigation';
 import SafeAreaView from 'react-native-safe-area-view';
 import { Icon } from 'react-native-elements';
+import { connect } from 'react-redux';
+import { fetchCampsites, fetchComments, fetchPromotions, fetchPartners } from '../redux/ActionCreators';
+
+const mapDispatchToProps = {
+    fetchCampsites,
+    fetchComments,
+    fetchPromotions,
+    fetchPartners
+};
 
 //Stack navigator- one required argument- route configs object. We set what components will be 
 //available for the stack
@@ -25,7 +34,7 @@ const DirectoryNavigator = createStackNavigator(
                 />
             })
         },
-        CampsiteInfo: {screen: CampsiteInfo},
+        CampsiteInfo: {screen: CampsiteInfo}
     },
     {
         initialRouteName: 'Directory', //This defaults to the Directory when this navigation is opened
@@ -193,6 +202,13 @@ const MainNavigator = createDrawerNavigator(
 
 class Main extends Component {
 
+    componentDidMount() {
+        this.props.fetchCampsites();
+        this.props.fetchComments();
+        this.props.fetchPromotions();
+        this.props.fetchPartners();
+    }
+
     render() {
         return(
             <View style={{flex: 1, paddingTop: Platform.OS === 'ios' ? 0 : Expo.Constants.statusBarHeight}}>
@@ -237,4 +253,5 @@ const styles = StyleSheet.create({
     }
 });
 
-export default Main;
+//connect to the redux store
+export default connect(null, mapDispatchToProps)(Main);

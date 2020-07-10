@@ -1,17 +1,19 @@
 import React, { Component } from 'react';
-import { FlatList } from 'react-native';
-import { ListItem } from 'react-native-elements';
-import { CAMPSITES } from '../shared/campsites';
+import { FlatList, View } from 'react-native';
+import { Tile } from 'react-native-elements';
+import { connect } from 'react-redux';
+import { baseUrl } from '../shared/baseUrl';
+import Loading from './LoadingComponent';
+
+const mapStateToProps = state => {
+    return {
+        campsites: state.campsites
+    }
+}
 
 
 class Directory extends Component {
-    constructor(props) {
-        super(props);
-
-        this.state = {
-            campsites: CAMPSITES
-        }
-    }
+    
 
     //Here we configure the title to the Directory page
     static navigationOptions = {
@@ -24,18 +26,30 @@ class Directory extends Component {
         //renderDirectoryItem callback function to render an item using the 'item' property
         const renderDirectoryItem = ({item}) => {
             return(
-                //Here we use ListItem to list each item in the array
-                <ListItem
+                //Here we use Tile to list each item in the array
+                <Tile
                     title={item.name}
-                    subtitle={item.description}
+                    caption={item.description}
+                    featured
                     onPress={() => navigate('CampsiteInfo', {campsiteId: item.id})}
-                    leftAvatar={{source: require('./images/react-lake.jpg')}}
+                    imageSrc={{uri: baseUrl + item.image}}
                 />
             )
         }
+
+        if(this.props.campsites.isLoading) {
+            return <Loading />;
+        }
+        if(this.props.campsites.errMess) {
+            return(
+                <View>
+                    <Text>{this.props.campsites.errMess}</Text>
+                </View>
+            );
+        }
         return(
             <FlatList
-                data={this.state.campsites}//this is the list of campsites
+                data={this.props.campsites.campsites}//this is the list of campsites
                 renderItem={renderDirectoryItem}//this is to render each item in the list
                 keyExtractor={item => item.id.toString()}//key value associated with each list item
             />
@@ -44,4 +58,5 @@ class Directory extends Component {
     
 }
 
-export default Directory;
+//connect to the redux store
+export default connect(mapStateToProps)(Directory);
